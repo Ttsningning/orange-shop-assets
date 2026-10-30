@@ -160,3 +160,19 @@
 | 橙色圆形按钮 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/ui/frames/button_orange.png |
 | 绿色圆形按钮 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/ui/frames/button_green.png |
 | 长条标题框 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/ui/frames/long_title_frame.png |
+
+## 背景 bg
+
+| 名称 | 链接 |
+|---|---|
+| 小狐狸酒馆·雨夜（原图 PNG） | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/bg/tavern_rainy_night.png |
+| 小狐狸酒馆·雨夜（压缩 JPG，加载快） | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/bg/tavern_rainy_night.jpg |
+
+## 背景音乐 BGM
+
+| 名称 | 时长 | 链接 |
+|---|---|---|
+| The Little Fox Tavern Never Closes | 2:20 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/bgm/little_fox_tavern_never_closes.mp3 |
+| The Night the First Moon Died | 4:30 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/bgm/night_the_first_moon_died.mp3 |
+
+播放示例：`<audio src="https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/bgm/little_fox_tavern_never_closes.mp3" controls loop></audio>`
