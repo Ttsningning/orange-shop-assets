@@ -208,4 +208,4 @@
 | 椅子·正面 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/chair_front.png |
 | 椅子·背面 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/chair_back.png |
 
-小技巧：宠物窝分层用法——先放 `pet_bed_back_cushion`，再放猫猫/狗狗，最后盖上 `pet_bed_front_rim`，就像宠物窝在窝里。
+小技巧：宠物窝分层用法——先放 `pet_bed_back_cushion`，再放猫猫/狗狗，最后盖上 `pet_bed_front_rim`，就像宠物真的趴在窝里。
