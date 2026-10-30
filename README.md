@@ -176,3 +176,36 @@
 | The Night the First Moon Died | 4:30 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/bgm/night_the_first_moon_died.mp3 |
 
 播放示例：`<audio src="https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/bgm/little_fox_tavern_never_closes.mp3" controls loop></audio>`
+
+## 酒馆场景 tavern（空房间背景 + 可摆放家具）
+
+### 背景 tavern/bg
+
+| 名称 | 链接 |
+|---|---|
+| 空房间·雨夜（原图 PNG） | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/bg/empty_room_rainy.png |
+| 空房间·雨夜（压缩 JPG，加载快） | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/bg/empty_room_rainy.jpg |
+
+### 家具 tavern/furniture
+
+| 名称 | 链接 |
+|---|---|
+| 酒架（瓶罐杯子） | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/shelf_bottles.png |
+| 石砌壁炉 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/fireplace.png |
+| 吊灯 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/hanging_lamp.png |
+| 手提油灯 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/lantern.png |
+| 米色椭圆地毯 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/rug_oval.png |
+| 绿色方地毯 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/rug_green.png |
+| 盆栽绿植 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/plant_potted.png |
+| 橘子树 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/orange_tree.png |
+| 小黑板立牌 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/chalkboard_sign.png |
+| 一篮橘子 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/orange_basket.png |
+| 宠物窝·完整 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/pet_bed_full.png |
+| 宠物窝·后半+垫子（放在宠物后面） | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/pet_bed_back_cushion.png |
+| 宠物窝·前沿（盖在宠物前面） | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/pet_bed_front_rim.png |
+| 吧台 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/counter.png |
+| 圆桌 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/round_table.png |
+| 椅子·正面 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/chair_front.png |
+| 椅子·背面 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/chair_back.png |
+
+小技巧：宠物窝分层用法——先放 `pet_bed_back_cushion`，再放猫猫/狗狗，最后盖上 `pet_bed_front_rim`，就像宠物窝在窝里。
