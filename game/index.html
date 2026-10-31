@@ -355,7 +355,7 @@ function applyOwned(){
 const tmr = new WeakMap();
 function swap(el,name,ms,back){
   const im = el.tagName==='IMG'?el:el.querySelector('img');
-  im.src = IMG(name); clearTimeout(tmr.get(el));
+  im.dataset.k=''; im.src = IMG(name); clearTimeout(tmr.get(el));
   if(ms) tmr.set(el,setTimeout(()=>{ im.src=IMG(back); },ms));
 }
 const BOSS = {idle:'chibi_boss_smile',busy:'chibi_boss_laugh_tray',mad:'chibi_boss_arms_crossed_pout'};
@@ -597,10 +597,10 @@ function tick(now){
     const job=R.queue[0];
     if(job){
       job.t+=dt;
-      if(!E.boss.src.endsWith(BOSS.busy+'.webp')) E.boss.src=IMG(BOSS.busy);
+      if(E.boss.dataset.k!=='busy'){ E.boss.dataset.k='busy'; E.boss.src=IMG(BOSS.busy); }
       E.cook.hidden=false; E.cook.querySelector('img').src=IMG(job.dish);
       E.cook.style.setProperty('--p',(Math.min(job.t/job.need,1)*100)+'%');
-      if(job.t>=job.need){ R.queue.shift(); serve(job); if(!R.queue.length){ E.cook.hidden=true; E.boss.src=IMG(BOSS.idle);} refresh(); }
+      if(job.t>=job.need){ R.queue.shift(); serve(job); if(!R.queue.length){ E.cook.hidden=true; E.boss.dataset.k=''; E.boss.src=IMG(BOSS.idle);} refresh(); }
     }
     if(R.catCd>0) R.catCd=Math.max(0,R.catCd-dt);
     const cd=E.cat.querySelector('.catcd'); cd.hidden=!(R.catCd>0); cd.style.setProperty('--p',(R.catCd/25*100)+'%');
