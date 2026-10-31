@@ -280,7 +280,7 @@ const PALS = {
   guoguo:{n:'果果',img:'dog_sweater_sit',d:'穿毛衣的比熊，在门口迎客。每单小费多 15%。',cost:160},
   tangtang:{n:'糖糖',img:'dog_stretch',d:'爱伸懒腰的比熊，陪客人玩。所有客人多等 15%。',cost:220},
 };
-const SEATS = [{x:3,b:9},{x:21,b:2},{x:37,b:11}];
+const SEATS = [{x:16,b:13},{x:30,b:3},{x:45,b:11}];
 const START = ['orange_tea','egg_sandwich','hot_cocoa','mushroom_soup'];
 const DAY_LEN = 100;
 const KEY = 'xiao-nuan-guang-v1';
@@ -310,20 +310,20 @@ function hitSpr(name,{l,b,w,z},label,fn){
 const E = {};
 function buildScene(){
   layer.innerHTML='';
-  spr('rug_oval',{l:1,b:0,w:44,z:1});
-  E.rug = spr('rug_green',{l:54,b:3,w:30,z:1},'decor');
+  spr('rug_oval',{l:14,b:1.5,w:37,z:1});
+  E.rug = spr('rug_green',{l:57,b:2,w:28,z:1},'decor');
   spr('fireplace',{l:37,b:40.5,w:14,z:2});
   spr('shelf_bottles',{l:68,b:41,w:13,z:2});
-  E.tree = spr('orange_tree',{l:.5,b:32,w:10,z:3},'decor');
-  E.plant = spr('plant_potted',{l:92.5,b:31,w:6.5,z:3},'decor');
+  E.tree = spr('orange_tree',{l:3.5,b:21,w:10,z:3},'decor');
+  E.plant = spr('plant_potted',{l:92,b:29,w:6.5,z:3},'decor');
   E.board = spr('chalkboard_sign',{l:85.5,b:33,w:6.5,z:3},'decor');
   E.boss = spr('chibi_boss_smile',{l:57,b:38,w:12,z:4});
-  E.lady = spr('chibi_lady_smile',{l:72.5,b:38,w:12,z:4});
+  E.lady = spr('chibi_lady_smile',{l:70.5,b:38,w:12,z:4});
   spr('counter',{l:54,b:19,w:33,z:5});
-  spr('lantern',{l:56,b:48,w:3,z:6});
-  spr('orange_basket',{l:81.5,b:43,w:5.5,z:6});
-  E.tangtang = hitSpr('dog_stretch',{l:42.5,b:27,w:9,z:8},'糖糖',()=>{ swap(E.tangtang,'dog_run',1500,'dog_stretch'); say('lady','laugh','糖糖又在伸懒腰，客人们看着都不着急了。'); });
-  E.guoguo = hitSpr('dog_sweater_sit',{l:35,b:28,w:7.5,z:8},'果果',()=>{ swap(E.guoguo,'dog_sweater_lie',1600,'dog_sweater_sit'); say('lady','smile','果果今天也穿着小毛衣迎客，大家都多给了小费。'); });
+  spr('lantern',{l:55.5,b:45.5,w:3,z:6});
+  spr('orange_basket',{l:80,b:42.5,w:5,z:6});
+  E.tangtang = hitSpr('dog_stretch',{l:43.5,b:30,w:8.5,z:8},'糖糖',()=>{ swap(E.tangtang,'dog_run',1500,'dog_stretch'); say('lady','laugh','糖糖又在伸懒腰，客人们看着都不着急了。'); });
+  E.guoguo = hitSpr('dog_sweater_sit',{l:36.5,b:31,w:7,z:8},'果果',()=>{ swap(E.guoguo,'dog_sweater_lie',1600,'dog_sweater_sit'); say('lady','smile','果果今天也穿着小毛衣迎客，大家都多给了小费。'); });
   E.seats = SEATS.map((s,i)=>{
     const z = 20 + (20 - s.b);
     const chair = spr('chair_front',{l:s.x,b:s.b+2,w:7.5,z});
