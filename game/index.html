@@ -187,6 +187,32 @@ button:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
 .ghost{border:2px solid var(--line);background:none;color:var(--wood);font:700 14px/1 var(--body);padding:9px 14px;border-radius:10px;cursor:pointer}
 .big{border:3px solid #e8b36a;background:linear-gradient(#cf6a36,var(--brick));color:var(--cream);font:400 20px/1 var(--display);letter-spacing:.12em;padding:13px 24px;border-radius:14px;cursor:pointer;box-shadow:0 4px 0 #6b2a12}
 .toggle{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fffaf0;border:1px solid #e0c48e;border-radius:12px;padding:10px 12px;font-weight:700}
+
+/* ---------- night theater ---------- */
+.theater{position:fixed;inset:0;z-index:120;background:#0d0805;overflow:hidden;cursor:pointer;user-select:none;-webkit-user-select:none;outline:none;animation:fadein .4s}
+.tbg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.42) blur(2px);transform:scale(1.06)}
+.actors{position:absolute;left:0;right:0;bottom:0;height:80%;display:flex;justify-content:space-between;align-items:flex-end;padding:0 max(4px,env(safe-area-inset-left,0px));pointer-events:none}
+.actor{height:100%;width:50%;object-fit:contain;object-position:bottom;transition:filter .3s,transform .3s;filter:brightness(.45) saturate(.7);transform:translateY(3%) scale(.97);transform-origin:bottom}
+.actor.on{filter:drop-shadow(0 0 18px #ffb45a55);transform:none}
+.tpet{position:absolute;left:50%;bottom:30%;width:min(30vw,190px);transform:translateX(-50%);filter:drop-shadow(0 6px 10px #0009);animation:petpop .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes petpop{from{transform:translateX(-50%) scale(.5);opacity:0}}
+.ttitle{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:0 16px;background:radial-gradient(circle,#1d130bcc,#1d130b55 60%,transparent)}
+.ttitle div{display:flex;flex-direction:column;gap:10px;align-items:center}
+.ttitle small{font-size:14px;letter-spacing:.5em;color:#e9cf9c}
+.ttitle b{font:400 clamp(28px,6.5vw,52px)/1.2 var(--display);color:var(--parch);text-shadow:0 3px 0 #2a170a,0 0 24px #ffb45a66;text-wrap:balance}
+.ttitle span{font-size:13px;color:#e9cf9caa;animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+.tbox{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(860px,calc(100% - 32px));background:var(--parch);color:var(--ink);border:3px solid var(--line);border-radius:16px;padding:16px 20px 26px;min-height:128px;box-shadow:inset 0 0 0 3px var(--parch),inset 0 0 0 4px #c99b5566,0 10px 30px #000c;display:flex;flex-direction:column;gap:8px}
+.tbox p{margin:0;font-size:17px;line-height:1.8;text-wrap:pretty}
+.tbox.narr p{color:var(--ink-soft);font-style:italic}
+.tbox .next{position:absolute;right:16px;bottom:8px;font-size:12px;color:var(--ink-soft);animation:blink 1.6s ease-in-out infinite}
+.tskip{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:3;border:2px solid #e9cf9c88;background:#1d130b99;color:var(--parch);font:700 14px/1 var(--body);padding:8px 14px;border-radius:99px;cursor:pointer}
+@media (max-aspect-ratio:1/1){.actors{top:7%;bottom:150px;height:auto}.actor{position:absolute;left:3%;bottom:0;width:94%;height:100%;opacity:0;transition:opacity .3s,filter .3s}.actor.on{opacity:1}.tpet{bottom:180px;width:min(46vw,220px)}}
+.love{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center}
+.love img{width:28px}
+.love .track{height:12px;border-radius:99px;background:#ecd9d0;overflow:hidden;box-shadow:inset 0 1px 2px #0002}
+.love .track i{display:block;height:100%;background:linear-gradient(#f29bab,#d9667c);border-radius:99px}
+.love b{font:400 20px/1 var(--display);color:#c2556b;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -284,13 +310,167 @@ const SEATS = [{x:16,b:13},{x:30,b:3},{x:45,b:11}];
 const START = ['orange_tea','egg_sandwich','hot_cocoa','mushroom_soup'];
 const DAY_LEN = 100;
 const KEY = 'xiao-nuan-guang-v1';
-const fresh = () => ({coins:20,rep:3,day:1,served:0,unlocked:[...START],decor:{},cookLv:0,pals:{},bgm:true,seen:false});
+const fresh = () => ({coins:20,rep:3,day:1,served:0,unlocked:[...START],decor:{},cookLv:0,pals:{},bgm:true,seen:false,love:0,eps:[],sfx:true});
 
 let S;
 try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY)||'null')||{}); } catch(e){ S = fresh(); }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
 const R = {open:false,t:0,seats:[],queue:[],spawnIn:1.2,stats:{earn:0,served:0,lost:0},catCd:0,combo:0,uid:0,goals:[],tab:'shop'};
 const lv = () => 1 + Math.floor(Math.sqrt(S.served/6));
+
+/* ================= 灵感小队 · 打烊小剧场 ================= */
+// line: [speaker, text] or [speaker, expression, text]; o=橘子 n=宁宁 g=罐罐 gg=果果 tt=糖糖 x=旁白
+const EPS = [
+ {id:'e1',t:'开张第一晚',need:0,lines:[
+  ['x','打烊的木牌翻了过来。壁炉噼啪作响，冰王国今晚难得下起了雨。'],
+  ['n','laugh','橘子！今天第一位客人夸你的热橙茶了，我听得清清楚楚。'],
+  ['o','smile','嗯，我也听见他夸老板娘笑起来好看。'],
+  ['n','shy','……你怎么连这个都要记。'],
+  ['o','laugh','小管家公的职业习惯。收入、客人数、宁宁笑了几次，全都要记。'],
+  ['g','喵——（罐罐用尾巴拍了拍账本：猫罐头支出也给本喵记上）'],
+  ['n','smile','好啦好啦，罐罐那份记在我名下。'],
+  ['x','那天的账本最后一行，橘子用很小的字写着：一切都好。']]},
+ {id:'e2',t:'半丸子头',need:0,lines:[
+  ['n','smile','橘子，你今天的半丸子头扎得格外精神。'],
+  ['o','chin','阿尼亚婶婶教的手法。不过每次照镜子，我都会想起某人拿着剪刀的样子。'],
+  ['n','laugh','那次明明是猫猫们乱指挥！而且最后很帅啊。'],
+  ['o','smile','嗯，所以我们的交情是——'],
+  ['n','laugh','过命和过头的交情！'],
+  ['g','喵？（罐罐蹲到宁宁面前，看起来也想剪个新造型）'],
+  ['o','pout','罐罐，听我一句，千万别。']]},
+ {id:'e3',t:'抱抱排队中',need:10,lines:[
+  ['x','宁宁刚在暖炉边坐下，罐罐就熟练地跳上了她的膝盖。'],
+  ['n','laugh','好好好，今天的第一个抱抱给罐罐——'],
+  ['o','chin','……那我排第几？'],
+  ['n','smile','你是店长，要以身作则，排在毛茸茸后面。'],
+  ['o','pout','店长申请插队。'],
+  ['g','呼噜呼噜。（罐罐翻了个身，把剩下的位置也占满了）'],
+  ['n','shy','好啦，最后一个、最长的那个留给你，行了吧？'],
+  ['o','laugh','成交。我等得起。']]},
+ {id:'e4',t:'朋友书新的一页',need:22,lines:[
+  ['n','smile','今天来的熊大叔，我想把他写进朋友书里。'],
+  ['o','smile','先问问人家愿不愿意。孤雪花前辈那一页，可是我们单方面写上去的。'],
+  ['n','laugh','前辈后来不是默默收下我们的雪花饼干了嘛，那就算认可啦！'],
+  ['o','laugh','你的「算」，标准真宽。'],
+  ['n','smile','灵感担当的标准，就是这么宽。'],
+  ['x','当晚，朋友书多了一页：熊大叔，爱吃烤鸡腿，说话很响，笑起来更响。']]},
+ {id:'e5',t:'碰瓷大师今日营业',need:35,lines:[
+  ['x','一位客人刚走到门口，罐罐突然「啪」地倒在他脚边，四脚朝天。'],
+  ['o','pout','又来了。'],
+  ['n','laugh','碰瓷大师今天也在营业！'],
+  ['g','喵呜……（虚弱地伸出一只爪子，指向客人手里的小鱼干）'],
+  ['o','smile','自从被食神大人识破，它的演技确实进步了。'],
+  ['n','smile','嗯，至少这次它记得先把眼睛闭上。'],
+  ['x','客人笑着留下了小鱼干。罐罐那晚的「收入」，比店里的草莓蛋糕还高。']]},
+ {id:'e6',t:'心之镜之后',need:50,lines:[
+  ['n','shy','橘子，你现在在客人面前，越来越……直白了。'],
+  ['o','smile','有吗？'],
+  ['n','shy','今天你跟鹿小姐说，「我们家宁宁调的苹果气泡饮最好喝」。'],
+  ['o','laugh','这是事实陈述。'],
+  ['o','smile','而且从心之镜出来以后，我就决定了，喜欢就要说出来。藏着太浪费。'],
+  ['n','laugh','……那我也说一句。'],
+  ['n','shy','今天的你，也很帅。'],
+  ['x','吧台后面，橘子假装认真擦杯子，耳朵却红了很久。']]},
+ {id:'e7',t:'下一次出发',need:66,lines:[
+  ['n','smile','橘子，你说星辉钥匙会藏在哪里呀？'],
+  ['o','smile','不知道。等我们攒够旅费，就再出发一次。'],
+  ['n','laugh','那酒馆怎么办？'],
+  ['o','smile','门口挂块牌子：「店长和老板娘冒险中，有事请找罐罐」。'],
+  ['g','喵！（罐罐挺直了腰，看起来非常想当店长）'],
+  ['n','laugh','那店里的猫罐头，大概第一天就会被吃光。'],
+  ['o','laugh','所以还是一起带上吧。灵感小队，一个都不能少。']]},
+ {id:'e8',t:'爱之萤草',need:84,lines:[
+  ['x','宁宁整理背包时，一株发着微光的小草掉了出来。'],
+  ['o','smile','这是……魔法集市那株「爱之萤草」？你一直留着？'],
+  ['n','shy','嗯……本来想着，万一哪天用得上呢。'],
+  ['o','smile','那现在还用得上吗？'],
+  ['n','laugh','好像用不上了。'],
+  ['o','laugh','那就把它种在橘子树旁边吧。让它好好看着，用不上它的两个人。'],
+  ['x','后来那株草真的在窗边发了芽，夜里会跟着壁炉的火光一闪一闪。']]},
+ {id:'e9',t:'两个人和三只毛茸茸',need:100,req:['guoguo','tangtang'],lines:[
+  ['n','smile','果果今天又穿着小毛衣迎客，有位客人说下次一定还来。'],
+  ['o','smile','糖糖也不错，它往客人脚边一躺，大家就都不急着催单了。'],
+  ['gg','汪汪！（果果骄傲地抖了抖毛衣）'],
+  ['tt','……（糖糖伸了个长长的懒腰，表示同意，然后继续睡）'],
+  ['n','laugh','我们的灵感小队，现在是两个人、三只毛茸茸。'],
+  ['o','smile','嗯。比刚出发的时候热闹多了。'],
+  ['n','shy','也比刚出发的时候，更像一个家了。']]},
+ {id:'e10',t:'冰王国的第一场雪',need:120,lines:[
+  ['x','冰王国下起了今年的第一场雪。客人都走了，壁炉的火也小了下去。'],
+  ['n','smile','橘子，背我上楼。'],
+  ['o','laugh','储物戒指装着全部行李，我的背今天正好空着。'],
+  ['n','laugh','所以当初买那枚戒指，真实目的是这个吧？'],
+  ['o','smile','一半一半。'],
+  ['x','毛茸茸们跟在后面，一个接一个地爬上了楼梯。'],
+  ['n','shy','晚安，小暖光。'],
+  ['o','smile','晚安，宁宁。']]},
+];
+const POOL = [
+ [['x','最后一位客人走后，橘子在吧台后面认真对账。'],['n','smile','账对得上吗？'],['o','laugh','对得上。就是罐罐的小鱼干支出，又超预算了。'],['g','喵。（罐罐假装没听见）']],
+ [['n','laugh','橘子，明天的特供写什么好？'],['o','smile','你最近最想吃什么？'],['n','laugh','南瓜浓汤！'],['o','smile','那就写南瓜浓汤。老板娘想吃的，就是今日特供。']],
+ [['x','壁炉噼啪作响，宁宁靠在橘子肩上翻朋友书。'],['n','smile','食神大人那页的蜜饼配方，我们什么时候试做？'],['o','chin','……上次厨房的事，我还没缓过来。'],['n','laugh','这次有罐罐监工！'],['o','pout','那才更危险。']],
+ [['o','smile','宁宁，今天辛苦了。'],['n','shy','你也是。'],['o','laugh','那就互相辛苦了。一起去泡杯热可可？'],['n','laugh','要加双份棉花糖！']],
+ [['x','门口的风铃响了一下，是冰王国的风。'],['n','smile','卡尔说，下雪的晚上，王国之灵会特别想吃甜的。'],['o','smile','那明天给他们留一块草莓蛋糕。'],['n','laugh','再留一块给我！']],
+ [['n','sad','今天有位客人没等到就走了……'],['o','smile','明天我们早点开灶。别难过，你今天已经很棒了。'],['n','smile','嗯！明天继续加油。'],['g','喵～（罐罐蹭了蹭宁宁的手）']],
+];
+const WHO = {o:'橘子',n:'宁宁',g:'罐罐',gg:'果果',tt:'糖糖'};
+const PET_IMG = {g:'cat_sit',gg:'dog_sweater_sit',tt:'dog_stretch'};
+function addLove(n){ S.love=(S.love||0)+n; R.stats.love=(R.stats.love||0)+n; }
+function nextEp(){ return EPS.find(e=>!S.eps.includes(e.id) && S.love>=e.need && (!e.req||e.req.every(k=>S.pals[k]))); }
+function playTheater(title,lines,onEnd){
+  const th=document.createElement('div'); th.className='theater'; th.tabIndex=-1; th.setAttribute('role','dialog'); th.setAttribute('aria-label',title);
+  th.innerHTML=`<div class="tbg"></div><div class="actors"><img class="actor" data-a="o" src="${IMG('boss_half_smile')}" alt="橘子"><img class="actor" data-a="n" src="${IMG('lady_half_smile')}" alt="宁宁"></div><img class="tpet" alt="" hidden><div class="ttitle"><div><small>打烊后的小剧场</small><b></b><span>点一下继续</span></div></div><div class="tbox" hidden><span class="who"></span><p></p><span class="next">点一下继续 ▸</span></div><button class="tskip" type="button">跳过</button>`;
+  th.querySelector('.tbg').style.backgroundImage=`url("${document.querySelector('.stage .bg').src}")`;
+  th.querySelector('.ttitle b').textContent=title;
+  document.body.appendChild(th); th.focus({preventScroll:true});
+  const aO=th.querySelector('[data-a="o"]'), aN=th.querySelector('[data-a="n"]'), pet=th.querySelector('.tpet'), box=th.querySelector('.tbox'), who=box.querySelector('.who'), p=box.querySelector('p'), tt=th.querySelector('.ttitle');
+  let i=-1, done=false;
+  const end=()=>{ if(done) return; done=true; th.remove(); document.removeEventListener('keydown',key); onEnd&&onEnd(); };
+  const step=()=>{
+    i++; if(i>=lines.length) return end();
+    SFX.page();
+    tt.hidden=true; box.hidden=false;
+    const L=lines[i], w=L[0], expr=L.length===3?L[1]:null, text=L[L.length-1];
+    aO.classList.toggle('on',w==='o'); aN.classList.toggle('on',w==='n');
+    if(w==='o') aO.src=IMG('boss_half_'+(expr||'smile'));
+    if(w==='n') aN.src=IMG('lady_half_'+(expr||'smile'));
+    if(PET_IMG[w]){ pet.src=IMG(PET_IMG[w]); pet.hidden=false; pet.style.animation='none'; void pet.offsetWidth; pet.style.animation=''; } else pet.hidden=true;
+    box.classList.toggle('narr',w==='x');
+    who.hidden = w==='x'; who.textContent=WHO[w]||'';
+    p.textContent=text;
+  };
+  const key=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); step(); } else if(e.key==='Escape') end(); };
+  th.addEventListener('click',step);
+  th.querySelector('.tskip').addEventListener('click',e=>{ e.stopPropagation(); end(); });
+  document.addEventListener('keydown',key);
+}
+function nightShow(){
+  const ep=nextEp();
+  if(ep){
+    const n=EPS.indexOf(ep)+1;
+    playTheater(`第 ${n} 话 · ${ep.t}`,ep.lines,()=>{ if(!S.eps.includes(ep.id)) S.eps.push(ep.id); save(); toast(`<img src="${IMG('heart')}" alt="">小剧场已收进「伙伴 · 回忆」`); if(R.tab==='pals') renderTab(); });
+  } else playTheater('打烊后的小日常',pick(POOL),null);
+}
+
+/* ================= 音效（合成，不用音频文件） ================= */
+let AC=null;
+function ac(){ if(!S.sfx) return null; try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume(); }catch(e){ AC=null; } return AC; }
+function tone(f,t0,dur,type,vol){
+  const a=ac(); if(!a) return;
+  const o=a.createOscillator(), g=a.createGain(), t=a.currentTime+t0;
+  o.type=type||'sine'; o.frequency.value=f;
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol||.12,t+.012); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+.05);
+}
+const SFX = {
+  bell(){ tone(1568,0,.9,'sine',.13); tone(3136,0,.45,'sine',.04); },
+  coin(){ tone(1319,0,.12,'triangle',.11); tone(1760,.08,.28,'triangle',.11); },
+  pop(){ tone(660,0,.08,'triangle',.09); tone(990,.05,.1,'triangle',.07); },
+  sad(){ tone(440,0,.25,'sine',.09); tone(349,.18,.4,'sine',.09); },
+  purr(){ tone(523,0,.15,'sine',.09); tone(659,.1,.15,'sine',.09); tone(784,.2,.3,'sine',.09); },
+  goal(){ tone(784,0,.18,'triangle',.1); tone(988,.12,.18,'triangle',.1); tone(1319,.24,.45,'triangle',.1); },
+  page(){ tone(880,0,.05,'triangle',.04); },
+};
 
 /* ================= scene ================= */
 const layer = $('layer'), stage = $('stage');
@@ -459,16 +639,28 @@ function renderDecorTab(){
 function renderPalsTab(){
   const p = (img,name,desc,extra='',locked=false)=>`<div class="pal ${locked?'locked':''}"><img src="${IMG(img)}" alt=""><div><b>${name}</b><small>${desc}</small>${extra}</div></div>`;
   const pals = Object.entries(PALS).map(([k,it])=> p(it.img,it.n,it.d, S.pals[k]?'<small class="owned">已经在店里啦</small>':`<div style="margin-top:6px">${costBtn('pal:'+k,it.cost)}</div>`, !S.pals[k])).join('');
-  $('side').innerHTML = `<section class="card"><h2>伙伴</h2><div class="list">
-    ${p('chibi_boss_smile','橘子','酒馆老板，负责后厨。做菜时会端着托盘笑。')}
-    ${p('chibi_lady_wave','宁宁','老板娘，招呼客人，记下每晚的小目标。')}
-    ${p('cat_sit','罐罐','店猫，住在藤编窝里。营业时摸一摸，所有等餐的客人多等 6 秒。')}
+  const nx = EPS.find(e=>!S.eps.includes(e.id));
+  const pct = nx ? (nx.need ? Math.min(S.love/nx.need,1)*100 : 100) : 100;
+  let tip;
+  if(!nx) tip='十段小剧场都看完啦，之后每晚会随机播放打烊后的小日常。';
+  else if(nx.req && !nx.req.every(k=>S.pals[k])) tip=`下一段「${nx.t}」需要果果和糖糖都来店里。`;
+  else if(S.love>=nx.need) tip=`下一段「${nx.t}」已经准备好，今晚打烊就能看。`;
+  else tip=`再攒 ${nx.need-S.love} 点心动值，解锁下一段小剧场。`;
+  const mem = S.eps.length ? S.eps.map(id=>{ const i=EPS.findIndex(e=>e.id===id); return i<0?'':`<div class="item"><img src="${IMG('menu_book')}" alt=""><div><b>第 ${i+1} 话</b><small>${EPS[i].t}</small></div><button class="buy" type="button" data-replay="${id}">重温</button></div>`; }).join('') : '<p class="empty">打烊后的小剧场会收进这里，随时可以重温。</p>';
+  $('side').innerHTML = `
+    <section class="card"><h2>心动值</h2><div class="love"><img src="${IMG('heart')}" alt=""><span class="track"><i style="width:${pct}%"></i></span><b>${S.love}</b></div><p class="note">${tip}</p><p class="note">让客人满意、完成小目标、摸罐罐，都会让两个人更心动。</p></section>
+    <section class="card"><h2>回忆</h2><div class="list">${mem}</div></section>
+    <section class="card"><h2>灵感小队</h2><div class="list">
+    ${p('chibi_boss_smile','橘子','灵感小队的「小管家公」，擅长规划、符箓和记账。在后厨做菜时会端着托盘笑。')}
+    ${p('chibi_lady_wave','宁宁','小队的灵感担当，爱美食、爱甜品、爱一切毛茸茸。招呼客人，写下每晚的小目标。')}
+    ${p('cat_sit','罐罐','碰瓷大师兼吃货，戴着装平安符的橘子小铃铛。营业时摸一摸，等餐的客人多等 6 秒。')}
     ${pals}</div></section>`;
 }
 function renderTab(){
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===R.tab));
   ({shop:renderShopTab,menu:renderMenuTab,decor:renderDecorTab,pals:renderPalsTab})[R.tab]();
   $('side').querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.buy)));
+  $('side').querySelectorAll('[data-replay]').forEach(b=>b.addEventListener('click',()=>{ const i=EPS.findIndex(e=>e.id===b.dataset.replay); if(i>=0) playTheater(`第 ${i+1} 话 · ${EPS[i].t}`,EPS[i].lines,null); }));
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{ R.tab=t.dataset.tab; renderTab(); }));
 
@@ -502,7 +694,7 @@ function spawn(){
   E.seats[seat].slot.appendChild(el);
   g.el=el; g.bar=el.querySelector('.pat i'); g.bub=el.querySelector('.bub');
   R.seats[seat]=g;
-  swap(E.lady,LADY.wave,1500,LADY.idle);
+  swap(E.lady,LADY.wave,1500,LADY.idle); SFX.bell();
   say(sp,'',pick(G.order).replace('{d}',DISH[dish].n));
   refresh();
 }
@@ -528,7 +720,7 @@ function bump(kind,dish){
     if(g.kind!==kind || g.have>=g.need) return;
     if(kind==='sell' && g.dish!==dish) return;
     g.have++;
-    if(g.have>=g.need){ S.coins+=g.reward; toast(`<img src="${IMG('star')}" alt="">小目标达成：${g.text} +${g.reward}`); }
+    if(g.have>=g.need){ S.coins+=g.reward; addLove(2); SFX.goal(); toast(`<img src="${IMG('star')}" alt="">小目标达成：${g.text} +${g.reward}`); }
   });
 }
 
@@ -540,6 +732,7 @@ function order(id){
   if(R.queue.length>=3){ swap(E.boss,BOSS.mad,1200,BOSS.idle); say('boss','pout','灶台满啦，一个一个来！'); return; }
   target.state='queued'; target.bub.classList.add('cooking');
   R.queue.push({dish:id,g:target,t:0,need:cookTime(id)});
+  SFX.pop();
   refresh();
 }
 function serve(job){
@@ -549,6 +742,7 @@ function serve(job){
   S.coins+=pay; R.stats.earn+=pay; R.stats.served++; S.served++;
   let rg=frac>0.5?1:0; if(fav)rg++; if(rg&&S.decor.rug)rg++;
   S.rep+=rg;
+  if(frac>0.5) addLove(fav?2:1); SFX.coin();
   R.combo=frac>0.5?R.combo+1:0;
   g.bub.className='bub done'; g.bub.innerHTML=`<img src="${IMG('heart')}" alt="满意">`;
   floatAt(g.el,`<img src="${IMG('orange_coin')}" alt="">+${pay}`);
@@ -562,7 +756,7 @@ function petCat(){
   if(!R.open){ swap(E.cat,'cat_roll',1800,'cat_sleep'); say('lady','smile','罐罐在打盹，营业的时候再来摸它吧。'); return; }
   if(R.catCd>0){ say('lady','smile',`罐罐还想睡一会儿，再等 ${Math.ceil(R.catCd)} 秒吧。`); return; }
   let n=0; R.seats.forEach(g=>{ if(g&&g.state==='wait'){ g.pat=Math.min(g.max,g.pat+6); n++; } });
-  R.catCd=25; bump('pet');
+  R.catCd=25; bump('pet'); addLove(1); SFX.purr();
   swap(E.cat,'cat_wave',1400,'cat_roll');
   setTimeout(()=>{ if(R.catCd>0) E.cat.querySelector('img').src=IMG('cat_sleep'); },3000);
   say('lady','laugh', n?`罐罐在撒娇，${n} 位客人都看得忘了催单。`:'罐罐翻了个身，没人等餐，它又睡了。');
@@ -590,7 +784,7 @@ function tick(now){
         floatAt(g.el,`<img src="${IMG('heart')}" alt="">-1`,true);
         g.bub.className='bub done'; g.bub.innerHTML='<span class="gone">走啦</span>';
         swap(E.boss,BOSS.mad,1500,BOSS.idle); swap(E.lady,LADY.sad,1800,LADY.idle);
-        say('lady','sad',`${GUEST[g.sp].n}等不及先走了……下次要快一点。`);
+        say('lady','sad',`${GUEST[g.sp].n}等不及先走了……下次要快一点。`); SFX.sad();
         removeGuest(g,600); save(); hud();
       }
     });
@@ -614,9 +808,9 @@ function tick(now){
 /* ================= day flow ================= */
 function openDay(){
   R.open=true; R.t=0; R.spawnIn=1.2; R.queue=[]; R.combo=0; R.catCd=0; R.lastCall=false;
-  R.stats={earn:0,served:0,lost:0};
+  R.stats={earn:0,served:0,lost:0,love:0};
   R.seats.forEach(g=>g&&g.el.remove()); R.seats=[];
-  makeGoals(); R.tab='shop'; renderTab(); hud();
+  ac(); makeGoals(); R.tab='shop'; renderTab(); hud();
   say('lady','laugh',S.day===1?'挂牌营业啦！客人头上的气泡就是想吃的菜，点下面的菜品让橘子去做。':`第 ${S.day} 天，开门迎客！今晚的小目标我写好了。`);
   playBgm();
 }
@@ -625,13 +819,15 @@ function closeDay(){
   R.seats.forEach(g=>{ if(g&&g.state!=='gone') removeGuest(g,0); });
   E.cook.hidden=true;
   const st=R.stats, goalsDone=R.goals.filter(g=>g.have>=g.need).length;
-  let bonus=0; if(goalsDone===3){ bonus=20+S.day*5; S.coins+=bonus; S.rep+=2; }
+  let bonus=0; if(goalsDone===3){ bonus=20+S.day*5; S.coins+=bonus; S.rep+=2; addLove(3); }
   S.day++; save(); hud(); renderTab();
   say(...(st.lost===0&&st.served>0?['lady','laugh','一个客人都没让他们空等，今晚辛苦啦！']:st.lost>st.served?['boss','pout','好多客人没吃上……明天多摸摸罐罐，或者去「装饰」里升级灶台。']:['lady','smile','打烊啦，数数今天的橘子币吧。']));
   modal(`<h2>第 ${S.day-1} 天 · 打烊</h2>
     <div class="sum"><div><b>${st.earn}</b><span>今日收入</span></div><div><b>${st.served}</b><span>招待客人</span></div><div><b>${st.lost}</b><span>没等到的</span></div><div><b>${goalsDone}/3</b><span>小目标</span></div></div>
     <p class="lead">${goalsDone===3?`小目标全部完成，额外奖励 ${bonus} 橘子币和 2 点人气！`:'在「菜单」「装饰」「伙伴」里，可以用橘子币把小店变得更好。'}</p>
-    <div class="row"><button class="big" type="button" data-close>回到店里</button></div>`);
+    <p class="lead" style="color:#c2556b">今晚心动值 +${st.love||0}　·　累计 ${S.love}</p>
+    <div class="row"><button class="big" type="button" id="toTheater">看打烊小剧场</button><button class="ghost" type="button" data-close>直接回店里</button></div>`);
+  $('toTheater').addEventListener('click',()=>{ $('modal').hidden=true; nightShow(); });
 }
 
 /* ================= modal ================= */
@@ -644,16 +840,18 @@ function modal(html){
 function welcome(){
   modal(`<div class="duo"><img src="${IMG('chibi_boss_smile')}" alt="橘子"><img src="${IMG('chibi_lady_wave')}" alt="宁宁"></div>
     <h2>小暖光酒馆</h2>
-    <p class="lead">雨夜里，只有橘子和宁宁的小店还亮着灯。<br>客人坐下后，头顶的气泡就是想吃的菜，点下方的菜品，橘子就会开始做。<br>客人等太久会走掉；摸摸窝里的罐罐，大家能多等一会儿。</p>
+    <p class="lead">冰王国的小暖光酒馆，是灵感小队冒险归来的家。<br>客人坐下后，头顶的气泡就是想吃的菜，点下方的菜品，橘子就会开始做。<br>客人等太久会走掉；摸摸窝里的罐罐，大家能多等一会儿。<br>每晚打烊后，还有橘子和宁宁的小剧场。</p>
     <div class="row"><button class="big" type="button" data-close>进店看看</button></div>`);
   S.seen=true; save();
 }
 function settings(){
   const c=modal(`<h2>设置</h2>
     <div class="toggle"><span>背景音乐 · 小狐狸酒馆</span><button class="buy" type="button" id="bgmT">${S.bgm?'开':'关'}</button></div>
+    <div class="toggle"><span>音效</span><button class="buy" type="button" id="sfxT">${S.sfx?'开':'关'}</button></div>
     <p class="lead" style="font-size:13.5px">玩法：客人点单 → 点菜品让橘子制作 → 上菜赚橘子币。完成每晚的三个小目标有额外奖励。</p>
     <div class="row"><button class="ghost" type="button" id="resetBtn">重新开店</button><button class="big" type="button" data-close>好的</button></div>`);
   c.querySelector('#bgmT').addEventListener('click',e=>{ S.bgm=!S.bgm; save(); e.target.textContent=S.bgm?'开':'关'; if(S.bgm) bgm.play().catch(()=>{}); else bgm.pause(); });
+  c.querySelector('#sfxT').addEventListener('click',e=>{ S.sfx=!S.sfx; save(); e.target.textContent=S.sfx?'开':'关'; if(S.sfx) SFX.pop(); });
   const rb=c.querySelector('#resetBtn');
   rb.addEventListener('click',()=>{
     if(rb.dataset.arm){ S=fresh(); S.seen=true; save(); R.open=false; R.seats.forEach(g=>g&&g.el.remove()); R.seats=[]; R.queue=[]; R.goals=[]; buildScene(); buildDishes(); hud(); renderTab(); $('modal').hidden=true; say('lady','smile','一切从头开始，小店又是新的了。'); }
