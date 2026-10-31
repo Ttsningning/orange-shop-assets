@@ -212,5 +212,5 @@
 
 ## 小游戏 game
 
-`game/` 文件夹里是「小狐狸酒馆」经营小游戏：`index.html` 加上压缩过的素材（`img/`）和背景音乐（`audio/`），整个文件夹可以单独运行。
+`game/` 文件夹里是「小暖光酒馆」经营小游戏（橘子、宁宁、罐罐、果果、糖糖）：`index.html` 加上压缩过的素材（`img/`）和背景音乐（`audio/`），整个文件夹可以单独运行。
 在仓库 Settings → Pages 里开启 GitHub Pages（Branch 选 `main`，目录选 `/ (root)`）后，就能用 `https://ttsningning.github.io/orange-shop-assets/game/` 访问。
