@@ -209,3 +209,8 @@
 | 椅子·背面 | https://cdn.jsdelivr.net/gh/Ttsningning/orange-shop-assets@main/tavern/furniture/chair_back.png |
 
 小技巧：宠物窝分层用法——先放 `pet_bed_back_cushion`，再放猫猫/狗狗，最后盖上 `pet_bed_front_rim`，就像宠物真的趴在窝里。
+
+## 小游戏 game
+
+`game/` 文件夹里是「小狐狸酒馆」经营小游戏：`index.html` 加上压缩过的素材（`img/`）和背景音乐（`audio/`），整个文件夹可以单独运行。
+在仓库 Settings → Pages 里开启 GitHub Pages（Branch 选 `main`，目录选 `/ (root)`）后，就能用 `https://ttsningning.github.io/orange-shop-assets/game/` 访问。

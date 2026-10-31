@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>小狐狸酒馆</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Serif+SC:wght@500;700&display=swap">
+<style>
+/* Layout: 16:9 tavern stage on top, parchment dialog + wooden menu tray below; one warm night-tavern look, single theme by choice */
+:root{
+  --night:#1c130c;      /* page ground, dark walnut */
+  --wood:#5a3a1f;       /* panels, buttons */
+  --wood-hi:#8a5a2c;
+  --parch:#f4e7c9;      /* paper surfaces */
+  --ink:#3a2412;        /* text on paper */
+  --gold:#caa24e;       /* brass trims */
+  --leaf:#4d6b3c;       /* sage green accents */
+  --orange:#e6822f;     /* the shop's orange */
+  --cream:#fbf3e2;
+  --danger:#c2462e;
+  --display:"ZCOOL KuaiLe","Noto Serif SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --body:"Noto Serif SC","Songti SC","STSong","PingFang SC",serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  background:var(--night) radial-gradient(ellipse at 50% -10%,#3b2614 0%,var(--night) 60%) fixed;
+  color:var(--cream);font-family:var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:12px 24px;
+  -webkit-tap-highlight-color:transparent;
+}
+.app{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.top{display:flex;align-items:center;gap:12px}
+.top h1{font-family:var(--display);font-weight:400;font-size:clamp(22px,4vw,34px);margin:0;color:var(--parch);letter-spacing:.06em;text-shadow:0 2px 0 #0008;flex:1;text-wrap:balance}
+.top h1 small{font-size:.5em;color:var(--gold);margin-left:.6em;letter-spacing:.12em}
+.rbtn{width:46px;height:44px;border:0;background:center/contain no-repeat;color:var(--cream);font:700 18px/1 var(--display);cursor:pointer;display:grid;place-items:center;text-shadow:0 1px 2px #000a;flex:none}
+.rbtn.on{background-image:url(img/button_orange.webp)}
+.rbtn.off{background-image:url(img/button_green.webp);opacity:.75}
+.rbtn:focus-visible,.btn:focus-visible,.dish:focus-visible,.hit:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+
+/* ---------- stage ---------- */
+.stage{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;container-type:inline-size;overflow:hidden;border-radius:14px;border:3px solid var(--gold);box-shadow:0 10px 40px #000a,inset 0 0 0 2px #0006;background:#2b1c10;user-select:none;-webkit-user-select:none}
+.stage .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.s{position:absolute;height:auto;pointer-events:none;-webkit-user-drag:none}
+.hit{position:absolute;padding:0;border:0;background:none;cursor:pointer}
+.hit img{display:block;width:100%;height:auto;pointer-events:none;-webkit-user-drag:none}
+.glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 70% 30%,#ffb45a22,transparent 40%),radial-gradient(circle at 23% 15%,#ffb45a1c,transparent 30%);mix-blend-mode:screen;animation:flick 4s ease-in-out infinite}
+@keyframes flick{50%{opacity:.7}}
+
+.guest{transition:opacity .5s,transform .5s;animation:arrive .6s ease-out}
+.guest.leave{opacity:0;transform:translateY(-4%)}
+@keyframes arrive{from{opacity:0;transform:translateY(6%)}}
+.bub{position:absolute;left:50%;bottom:96%;width:12cqw;aspect-ratio:504/343;transform:translateX(-50%);background:url(img/speech_bubble.webp) center/100% 100% no-repeat;display:grid;place-items:center;padding-bottom:22%;filter:drop-shadow(0 .3cqw .4cqw #0008);animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
+.bub img{width:56%;height:auto}
+.bub .fav{position:absolute;top:-8%;right:-6%;width:30%}
+.bub .tag{position:absolute;inset:auto 0 26% 0;text-align:center;font:400 1.5cqw/1 var(--display);color:var(--ink)}
+.bub.cooking img{opacity:.45}
+.bub.done{background:none;filter:none}
+.bub.done img{width:70%;animation:beat .6s ease-in-out infinite alternate}
+@keyframes pop{from{transform:translateX(-50%) scale(.4)}}
+@keyframes beat{to{transform:scale(1.15)}}
+.pat{position:absolute;left:18%;right:18%;top:calc(100% - 4px);height:max(4px,.7cqw);background:#0008;border-radius:99px;overflow:hidden;border:1px solid #fff4}
+.pat i{display:block;height:100%;background:var(--leaf);border-radius:99px;transition:background .3s}
+.pat i.mid{background:var(--orange)}.pat i.low{background:var(--danger)}
+
+.cookbub{position:absolute;width:6cqw;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--orange) var(--p,0%),#0007 0);display:grid;place-items:center;border:.25cqw solid var(--gold);z-index:61;pointer-events:none;box-shadow:0 .3cqw .8cqw #0009}
+.cookbub img{width:76%;height:76%;object-fit:contain;background:var(--parch);border-radius:50%;padding:8%}
+
+.hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:flex-start;padding:1.2cqw 1.4cqw;z-index:70;pointer-events:none}
+.sign{position:relative;width:clamp(96px,19cqw,230px);aspect-ratio:600/324;background:url(img/wood_sign.webp) center/100% 100% no-repeat;filter:drop-shadow(0 .4cqw .5cqw #0009)}
+.sign-in{position:absolute;inset:36% 12% 12%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6%}
+.sign b{font:400 clamp(12px,2.2cqw,24px)/1 var(--display);color:var(--cream);text-shadow:0 1px 0 #0009;letter-spacing:.05em}
+.sign .clock{font:700 clamp(10px,1.6cqw,17px)/1 var(--body);color:#ffe2b5;font-variant-numeric:tabular-nums}
+.sign .bar{width:80%;height:max(3px,.5cqw);background:#0007;border-radius:9px;overflow:hidden}
+.sign .bar i{display:block;height:100%;background:var(--orange)}
+.stats{display:flex;gap:.8cqw;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:flex;align-items:center;gap:.5em;padding:.35em .8em .35em .4em;background:#2a1a0ccc;border:2px solid var(--gold);border-radius:99px;font:400 clamp(12px,2cqw,22px)/1 var(--display);color:var(--cream);font-variant-numeric:tabular-nums}
+.pill img{width:1.5em;height:1.5em;object-fit:contain}
+.float{position:absolute;z-index:80;pointer-events:none;font:400 clamp(13px,2.4cqw,26px)/1 var(--display);color:#ffd27a;text-shadow:0 2px 0 #000a,0 0 6px #000;animation:rise 1.3s ease-out forwards;display:flex;align-items:center;gap:.2em;transform:translateX(-50%)}
+.float img{width:1.2em}
+.float.bad{color:#ff9c86}
+@keyframes rise{to{transform:translate(-50%,-160%);opacity:0}}
+.catcd{position:absolute;right:6%;top:-6%;width:3.4cqw;aspect-ratio:1;border-radius:50%;background:conic-gradient(#0009 var(--p,0%),transparent 0),url(img/paw.webp) center/80% no-repeat,var(--parch);border:2px solid var(--gold);pointer-events:none}
+@container (max-width:620px){.bub{width:17cqw}.cookbub{width:9cqw}.catcd{width:6cqw}.sign b{font-size:11px}.sign .clock{font-size:10px}}
+
+/* ---------- panel ---------- */
+.panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:12px}
+@media (max-width:820px){.panel{grid-template-columns:minmax(0,1fr)}}
+.dialog{position:relative;display:grid;grid-template-columns:clamp(96px,28%,170px) minmax(0,1fr);gap:14px;align-items:end;background:var(--parch);color:var(--ink);border-radius:12px;padding:12px 16px 12px 12px;border:3px solid var(--gold);box-shadow:inset 0 0 0 2px var(--parch),inset 0 0 0 4px #b58a3e88,0 6px 20px #0008;min-height:150px}
+.portrait{align-self:stretch;position:relative;border-radius:8px;overflow:hidden;background:radial-gradient(circle at 50% 30%,#fff6e0,#e8d3a6);border:2px solid #b58a3e}
+.portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 8%;animation:fadein .3s}
+@keyframes fadein{from{opacity:0}}
+.speech{min-width:0;display:flex;flex-direction:column;gap:6px;padding-block:4px}
+.speech .who{align-self:flex-start;font:400 17px/1 var(--display);color:var(--cream);background:var(--wood);padding:6px 12px 5px;border-radius:6px;border:2px solid var(--gold);letter-spacing:.08em}
+.speech p{margin:0;overflow-wrap:anywhere;font-size:16px;line-height:1.7;min-height:3.4em;text-wrap:pretty}
+.speech .hint{font-size:12.5px;color:#7a5a36;letter-spacing:.02em}
+
+.tray{background:linear-gradient(#6b4524,#4e3119);border:3px solid var(--gold);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:inset 0 2px 0 #ffffff1a,0 6px 20px #0008;min-width:0}
+.tray-h{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.tray-h h2{margin:0;font:400 20px/1 var(--display);letter-spacing:.1em;color:var(--parch);display:flex;align-items:center;gap:8px}
+.tray-h h2 img{width:26px}
+.queue{display:flex;align-items:center;gap:6px;font-size:13px;color:#f1d9ad}
+.qslot{width:34px;height:34px;border-radius:8px;background:#0005;border:2px dashed #caa24e88;display:grid;place-items:center;position:relative;overflow:hidden}
+.qslot img{width:80%;height:80%;object-fit:contain;position:relative}
+.qslot.busy{border-style:solid;background:linear-gradient(to top,#e6822f99 var(--p,0%),#0005 0)}
+.dishes{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.dish{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 6px;border-radius:10px;border:2px solid #b58a3e;background:var(--parch);color:var(--ink);cursor:pointer;font-family:var(--body);transition:transform .12s,box-shadow .2s}
+.dish img{width:72%;aspect-ratio:4/3;object-fit:contain}
+.dish .n{font-size:13px;font-weight:700;line-height:1.2;text-align:center}
+.dish .p{font-size:12px;display:flex;align-items:center;gap:3px;font-variant-numeric:tabular-nums;color:#7a4b1d}
+.dish .p img{width:14px;aspect-ratio:1}
+.dish:active{transform:scale(.95)}
+.dish.want{border-color:var(--orange);box-shadow:0 0 0 3px #e6822f66,0 0 16px #e6822f99}
+.dish .cnt{position:absolute;top:-8px;right:-6px;min-width:22px;height:22px;border-radius:99px;background:var(--orange);color:#fff;font:400 13px/22px var(--display);text-align:center;border:2px solid var(--cream);padding:0 4px}
+.dish:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:100;background:#140c06d0;display:grid;place-items:center;overflow-y:auto;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.card{width:min(560px,100%);background:var(--parch);color:var(--ink);border:3px solid var(--gold);border-radius:14px;box-shadow:inset 0 0 0 3px var(--parch),inset 0 0 0 5px #b58a3e88,0 20px 60px #000c;padding:22px 20px 20px;display:flex;flex-direction:column;gap:14px;animation:fadein .3s}
+.card h2{margin:0;font:400 clamp(24px,5vw,32px)/1.2 var(--display);text-align:center;letter-spacing:.08em;color:var(--wood);text-wrap:balance}
+.card .lead{margin:0;text-align:center;line-height:1.75;font-size:15px}
+.duo{display:flex;justify-content:center;align-items:flex-end;gap:4px;height:150px}
+.duo img{height:100%;width:auto}
+.sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:440px){.sum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sum div{background:#fffaf0;border:1px solid #d9bd85;border-radius:10px;padding:8px 6px;text-align:center}
+.sum b{display:block;font:400 22px/1.2 var(--display);color:var(--wood);font-variant-numeric:tabular-nums}
+.sum span{font-size:12px;color:#7a5a36}
+.shop-h{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #b58a3e;padding-top:12px}
+.shop-h h3{margin:0;font:400 20px/1 var(--display);color:var(--wood);letter-spacing:.08em}
+.wallet{display:flex;align-items:center;gap:6px;font:400 18px/1 var(--display);color:var(--wood)}
+.wallet img{width:24px}
+.shop{display:flex;flex-direction:column;gap:8px;max-height:min(46vh,420px);overflow-y:auto;padding-right:4px}
+.item{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;background:#fffaf0;border:1px solid #d9bd85;border-radius:10px;padding:8px 10px}
+.item>img{width:52px;height:44px;object-fit:contain}
+.item b{font-size:15px;display:block}
+.item small{font-size:12.5px;color:#7a5a36;line-height:1.5;display:block}
+.btn{border:2px solid var(--gold);background:linear-gradient(var(--wood-hi),var(--wood));color:var(--cream);font:400 16px/1 var(--display);letter-spacing:.06em;padding:10px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center;white-space:nowrap;box-shadow:0 2px 0 #2a1a0c}
+.btn img{width:18px}
+.btn:disabled{filter:grayscale(.8);opacity:.55;cursor:not-allowed}
+.btn.big{font-size:20px;padding:14px 22px;background:linear-gradient(#f0913c,#c8621e)}
+.btn.ghost{background:none;color:var(--wood);box-shadow:none;border-color:#b58a3e;font-size:14px;padding:8px 12px}
+.btn.owned{background:var(--leaf)}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>小狐狸酒馆<small>今夜也不打烊</small></h1>
+    <button class="rbtn off" id="bgmBtn" type="button" aria-label="背景音乐" title="背景音乐">♪</button>
+  </header>
+
+  <div class="stage" id="stage">
+    <img class="bg" src="img/bg.jpg" alt="雨夜的小酒馆">
+    <div id="layer"></div>
+    <div class="glow"></div>
+    <div class="hud">
+      <div class="sign"><div class="sign-in"><b id="dayLbl">第 1 天</b><span class="clock" id="clock">18:00</span><span class="bar"><i id="dayBar" style="width:0%"></i></span></div></div>
+      <div class="stats">
+        <span class="pill" title="橘子币"><img src="img/orange_coin.webp" alt="">金币 <span id="coins">0</span></span>
+        <span class="pill" title="人气"><img src="img/heart.webp" alt="">人气 <span id="rep">0</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <section class="dialog" aria-live="polite">
+      <div class="portrait"><img id="pImg" src="img/lady_half_smile.webp" alt=""></div>
+      <div class="speech">
+        <span class="who" id="pName">老板娘</span>
+        <p id="pText">欢迎光临！今晚下雨，客人们都想喝点热的。</p>
+        <span class="hint" id="hint">点菜单里的菜，老板就会做给点了它的客人。点猫猫能安抚大家。</span>
+      </div>
+    </section>
+    <section class="tray">
+      <div class="tray-h">
+        <h2><img src="img/menu_book.webp" alt="">今日菜单</h2>
+        <div class="queue" id="queue" aria-label="灶台"></div>
+      </div>
+      <div class="dishes" id="dishes"></div>
+    </section>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="card" id="card"></div></div>
+<audio id="bgm" src="audio/tavern.mp3" loop preload="none"></audio>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const IMG = n => `img/${n}.webp`;
+
+/* ---------------- data ---------------- */
+const DISH = {
+  orange_tea:{n:'橙子热茶',price:8,cook:1.6},
+  egg_sandwich:{n:'鸡蛋三明治',price:10,cook:2},
+  hot_cocoa:{n:'热可可',price:9,cook:1.8},
+  mushroom_soup:{n:'蘑菇浓汤',price:12,cook:2.4},
+  apple_soda:{n:'苹果气泡饮',price:11,cook:1.6,cost:30},
+  caramel_pudding:{n:'焦糖布丁',price:13,cook:2.2,cost:45},
+  pumpkin_soup:{n:'南瓜浓汤',price:14,cook:2.6,cost:60},
+  baked_rice:{n:'芝士焗饭',price:16,cook:3,cost:75},
+  strawberry_cake:{n:'草莓蛋糕',price:17,cook:2.6,cost:90},
+  berry_pancakes:{n:'莓果松饼',price:18,cook:2.8,cost:110},
+  roast_chicken:{n:'烤鸡腿配土豆',price:22,cook:3.4,cost:140},
+  grilled_fish:{n:'香草烤鱼',price:24,cook:3.6,cost:170},
+};
+const GUEST = {
+  bear:{n:'熊大叔',fav:'roast_chicken',
+    order:['来份{d}，要热乎的！','走了一天山路，给我{d}。','老规矩……啊不对，今天想吃{d}。'],
+    happy:['好吃！明天还来。','香！这下有力气回家了。'],
+    favLine:'就是这个味道！老板手艺没话说。'},
+  deer:{n:'鹿小姐',fav:'apple_soda',
+    order:['请给我一份{d}，谢谢～','雨好大呀，想要{d}。','今天的{d}还有吗？'],
+    happy:['谢谢老板娘，很好吃。','暖和多了，雨声也变好听了。'],
+    favLine:'是苹果气泡饮！今天运气真好。'},
+  rabbit:{n:'兔小姐',fav:'strawberry_cake',
+    order:['我要{d}！','能来一份{d}吗？','嗯……就{d}吧！'],
+    happy:['甜甜的，好幸福。','下次带朋友一起来。'],
+    favLine:'草莓蛋糕！我可以再坐一会儿吗？'},
+  raccoon:{n:'浣熊先生',fav:'grilled_fish',
+    order:['一份{d}，麻烦快一点。','听说这里的{d}不错。','{d}，谢谢。'],
+    happy:['嗯，名不虚传。','值这个价，小费收下吧。'],
+    favLine:'烤鱼的火候刚刚好，佩服。'},
+};
+const SEATS = [ {x:3,b:9}, {x:21,b:2}, {x:37,b:11} ];
+const START = ['orange_tea','egg_sandwich','hot_cocoa','mushroom_soup'];
+const DAY_LEN = 100;
+const KEY = 'little-fox-tavern-v1';
+const fresh = () => ({coins:20,rep:3,day:1,unlocked:[...START],tables:2,cookLv:0,dog:false,bgm:false,totalServed:0});
+
+let S;
+try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || 'null') || {}); } catch(e){ S = fresh(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+
+const R = {open:false,t:0,seats:[],queue:[],spawnIn:1.2,stats:{earn:0,served:0,lost:0},catCd:0,combo:0,uid:0};
+
+/* ---------------- scene ---------------- */
+const layer = $('layer'), stage = $('stage');
+function spr(name,{l,b,w,z=1},parent=layer){
+  const im = document.createElement('img');
+  im.className='s'; im.src=IMG(name); im.alt=''; im.draggable=false;
+  Object.assign(im.style,{left:l+'%',bottom:b+'%',width:w+'%',zIndex:z});
+  parent.appendChild(im); return im;
+}
+function buildScene(){
+  layer.innerHTML='';
+  spr('rug_oval',{l:1,b:0,w:44,z:1});
+  spr('rug_green',{l:54,b:3,w:30,z:1});
+  spr('fireplace',{l:37,b:40.5,w:14,z:2});
+  spr('shelf_bottles',{l:68,b:41,w:13,z:2});
+  spr('orange_tree',{l:.5,b:32,w:10,z:3});
+  spr('plant_potted',{l:92.5,b:31,w:6.5,z:3});
+  spr('chalkboard_sign',{l:85.5,b:33,w:6.5,z:3});
+  R.boss = spr('chibi_boss_smile',{l:57,b:38,w:12,z:4});
+  R.lady = spr('chibi_lady_smile',{l:72.5,b:38,w:12,z:4});
+  spr('counter',{l:54,b:19,w:33,z:5});
+  spr('lantern',{l:56,b:48,w:3,z:6});
+  spr('orange_basket',{l:78,b:48.5,w:7,z:6});
+  // seats
+  R.seatEls = SEATS.map((s,i)=>{
+    const z = 20 + (20 - s.b);
+    const chair = spr('chair_front',{l:s.x,b:s.b+2,w:7.5,z});
+    const table = spr('round_table',{l:s.x+7,b:s.b-2,w:11,z:z+2});
+    const slot = document.createElement('div');
+    Object.assign(slot.style,{position:'absolute',left:(s.x-0.6)+'%',bottom:(s.b-1)+'%',width:'8.7%',zIndex:z+1});
+    layer.appendChild(slot);
+    const show = i < S.tables;
+    chair.hidden = table.hidden = !show;
+    return {chair,table,slot};
+  });
+  // pet bed + cat
+  spr('pet_bed_back_cushion',{l:80,b:1.5,w:17,z:40});
+  const cat = document.createElement('button');
+  cat.className='hit'; cat.type='button'; cat.setAttribute('aria-label','摸摸猫猫');
+  Object.assign(cat.style,{left:'82.5%',bottom:'5.5%',width:'11.5%',zIndex:41});
+  cat.innerHTML = `<img src="${IMG('cat_sleep')}" alt=""><span class="catcd" hidden></span>`;
+  cat.addEventListener('click',petCat);
+  layer.appendChild(cat); R.cat = cat;
+  spr('pet_bed_front_rim',{l:80.8,b:1,w:15.4,z:42});
+  // dog
+  const dog = document.createElement('button');
+  dog.className='hit'; dog.type='button'; dog.setAttribute('aria-label','比熊店员');
+  Object.assign(dog.style,{left:'68%',bottom:'3%',width:'8.5%',zIndex:39});
+  dog.innerHTML = `<img src="${IMG('dog_sweater_sit')}" alt="">`;
+  dog.hidden = !S.dog;
+  dog.addEventListener('click',()=>{ setImg(dog,'dog_run',1600,'dog_sweater_sit'); say('lady','laugh','小白在门口迎客呢，客人们都会多给点小费。'); });
+  layer.appendChild(dog); R.dog = dog;
+  // cooking bubble over boss
+  const cb = document.createElement('div'); cb.className='cookbub'; cb.hidden=true;
+  Object.assign(cb.style,{left:'64%',bottom:'62%'}); cb.innerHTML='<img alt="">';
+  layer.appendChild(cb); R.cookBub = cb;
+}
+const timers = new WeakMap();
+function setImg(el,name,ms,back){
+  const im = el.tagName==='IMG'?el:el.querySelector('img');
+  im.src = IMG(name);
+  clearTimeout(timers.get(el));
+  if(ms) timers.set(el,setTimeout(()=>{ im.src=IMG(back); },ms));
+}
+const BOSS = {idle:'chibi_boss_smile',busy:'chibi_boss_laugh_tray',mad:'chibi_boss_arms_crossed_pout'};
+const LADY = {idle:'chibi_lady_smile',wave:'chibi_lady_wave',sad:'chibi_lady_sad'};
+
+/* ---------------- dialog ---------------- */
+const NAMES = {boss:'老板',lady:'老板娘'};
+function say(who,expr,text){
+  const img = $('pImg');
+  const src = GUEST[who] ? IMG(who+'_half') : IMG(`${who}_half_${expr}`);
+  if(!img.src.endsWith(src)){ img.src = src; img.style.animation='none'; void img.offsetWidth; img.style.animation=''; }
+  $('pName').textContent = GUEST[who] ? GUEST[who].n : NAMES[who];
+  $('pText').textContent = text;
+}
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* ---------------- HUD / menu ---------------- */
+function hud(){
+  $('coins').textContent = S.coins;
+  $('rep').textContent = S.rep;
+  $('dayLbl').textContent = `第 ${S.day} 天`;
+  const frac = Math.min(R.t/DAY_LEN,1);
+  const mins = 18*60 + Math.floor(frac*360);
+  $('clock').textContent = mins>=1440 ? '打烊' : `${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`;
+  $('dayBar').style.width = (frac*100)+'%';
+}
+function buildMenu(){
+  const box = $('dishes'); box.innerHTML='';
+  S.unlocked.forEach(id=>{
+    const d = DISH[id];
+    const b = document.createElement('button');
+    b.type='button'; b.className='dish'; b.id='dish-'+id;
+    b.innerHTML = `<img src="${IMG(id)}" alt=""><span class="n">${d.n}</span><span class="p"><img src="${IMG('orange_coin')}" alt="">${d.price}</span>`;
+    b.addEventListener('click',()=>order(id));
+    box.appendChild(b);
+  });
+  refreshMenu();
+}
+function refreshMenu(){
+  const want = {};
+  R.seats.forEach(g=>{ if(g && g.state==='wait') want[g.dish]=(want[g.dish]||0)+1; });
+  S.unlocked.forEach(id=>{
+    const b = $('dish-'+id); if(!b) return;
+    b.classList.toggle('want',!!want[id]);
+    let c = b.querySelector('.cnt');
+    if(want[id]){ if(!c){ c=document.createElement('span'); c.className='cnt'; b.appendChild(c);} c.textContent=want[id]; }
+    else if(c) c.remove();
+    b.disabled = !R.open;
+  });
+}
+function drawQueue(){
+  const q = $('queue'); const cap = 3;
+  let h = '<span>灶台</span>';
+  for(let i=0;i<cap;i++){
+    const job = R.queue[i];
+    if(job){
+      const p = i===0 ? Math.min(job.t/job.need,1)*100 : 0;
+      h += `<span class="qslot ${i===0?'busy':''}" style="--p:${p}%"><img src="${IMG(job.dish)}" alt="${DISH[job.dish].n}"></span>`;
+    } else h += '<span class="qslot"></span>';
+  }
+  q.innerHTML = h;
+}
+
+/* ---------------- guests ---------------- */
+function cookTime(id){ return DISH[id].cook * Math.pow(0.8,S.cookLv); }
+function patienceFor(){ return Math.max(14, 26 - Math.min(S.day,10)*1.1); }
+
+function spawn(){
+  const free = [];
+  for(let i=0;i<S.tables;i++) if(!R.seats[i]) free.push(i);
+  if(!free.length) return;
+  const seat = pick(free);
+  const sp = pick(Object.keys(GUEST));
+  const G = GUEST[sp];
+  const pool = [...S.unlocked];
+  if(S.unlocked.includes(G.fav)) pool.push(G.fav,G.fav);
+  const dish = pick(pool);
+  const max = patienceFor();
+  const g = {id:++R.uid,seat,sp,dish,max,pat:max,state:'wait'};
+  const el = document.createElement('div');
+  el.className='guest'; el.style.position='relative';
+  el.innerHTML = `<button class="hit" type="button" style="position:relative;display:block;width:100%" aria-label="${G.n}"><img src="${IMG(sp+'_sit')}" alt=""></button>
+    <div class="bub"><img src="${IMG(dish)}" alt="${DISH[dish].n}">${dish===G.fav?`<img class="fav" src="${IMG('star')}" alt="最爱">`:''}<span class="pat"><i></i></span></div>`;
+  el.querySelector('button').addEventListener('click',()=>{
+    if(g.state==='wait') say(sp,'',`想要一份${DISH[dish].n}。` + (dish===G.fav?'（这是我最爱吃的！）':''));
+  });
+  R.seatEls[seat].slot.appendChild(el);
+  g.el = el; g.bar = el.querySelector('.pat i'); g.bub = el.querySelector('.bub');
+  R.seats[seat] = g;
+  setImg(R.lady,LADY.wave,1500,LADY.idle);
+  say(sp,'',pick(G.order).replace('{d}',DISH[dish].n));
+  refreshMenu();
+}
+function removeGuest(g,delay){
+  g.state='gone';
+  setTimeout(()=>{ g.el.classList.add('leave'); setTimeout(()=>{ g.el.remove(); if(R.seats[g.seat]===g) R.seats[g.seat]=null; refreshMenu(); },500); },delay);
+}
+function floatAt(g,html,bad){
+  const r = g.el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+  const f = document.createElement('div'); f.className='float'+(bad?' bad':''); f.innerHTML=html;
+  f.style.left = ((r.left+r.width/2-s.left)/s.width*100)+'%';
+  f.style.top = ((r.top-s.top)/s.height*100 - 6)+'%';
+  stage.appendChild(f); setTimeout(()=>f.remove(),1400);
+}
+
+/* ---------------- actions ---------------- */
+function order(id){
+  if(!R.open) return;
+  const target = R.seats.filter(g=>g && g.state==='wait' && g.dish===id).sort((a,b)=>a.pat-b.pat)[0];
+  if(!target){ say('lady','sad',`现在没有客人点${DISH[id].n}哦，看看大家头上的小气泡吧。`); return; }
+  if(R.queue.length>=3){ setImg(R.boss,BOSS.mad,1200,BOSS.idle); say('boss','pout','灶台满啦，一个一个来！'); return; }
+  target.state='queued';
+  target.bub.classList.add('cooking');
+  R.queue.push({dish:id,g:target,t:0,need:cookTime(id)});
+  drawQueue(); refreshMenu();
+}
+function serve(job){
+  const g = job.g, G = GUEST[g.sp];
+  const frac = g.pat/g.max;
+  const fav = g.dish===G.fav;
+  let tip = 0.5*frac + (fav?0.5:0) + (S.dog?0.2:0) + Math.min(S.rep,30)*0.01;
+  const pay = Math.round(DISH[g.dish].price*(1+tip));
+  S.coins += pay; R.stats.earn += pay; R.stats.served++; S.totalServed++;
+  let repGain = frac>0.5 ? 1 : 0; if(fav) repGain++;
+  S.rep += repGain;
+  R.combo = frac>0.5 ? R.combo+1 : 0;
+  g.bub.className='bub done'; g.bub.innerHTML=`<img src="${IMG('heart')}" alt="满意">`;
+  floatAt(g,`<img src="${IMG('orange_coin')}" alt="">+${pay}`);
+  if(R.combo>=3){ say('lady','laugh',`连续 ${R.combo} 位客人都很满意！今晚生意真好。`); }
+  else say(g.sp,'',fav?G.favLine:pick(G.happy));
+  setImg(R.lady,LADY.wave,1200,LADY.idle);
+  removeGuest(g,1400);
+  save(); hud();
+}
+function petCat(){
+  if(!R.open){ setImg(R.cat,'cat_roll',1800,'cat_sleep'); say('lady','smile','猫猫在打盹，营业的时候再来摸它吧。'); return; }
+  if(R.catCd>0){ say('lady','smile',`猫猫还想睡一会儿，再等 ${Math.ceil(R.catCd)} 秒吧。`); return; }
+  let n=0;
+  R.seats.forEach(g=>{ if(g && g.state==='wait'){ g.pat=Math.min(g.max,g.pat+6); n++; } });
+  R.catCd = 25;
+  setImg(R.cat,'cat_wave',1400,'cat_roll');
+  setTimeout(()=>{ if(R.catCd>0) R.cat.querySelector('img').src=IMG('cat_sleep'); },3000);
+  say('lady','laugh', n ? `猫猫在撒娇，${n} 位客人都看得忘了催单。` : '猫猫翻了个身，没人等餐，它又睡了。');
+}
+
+/* ---------------- loop ---------------- */
+let last = performance.now();
+function tick(now){
+  const dt = Math.min((now-last)/1000,0.1); last = now;
+  if(R.open && !document.hidden){
+    R.t += dt;
+    if(R.t < DAY_LEN){
+      R.spawnIn -= dt;
+      if(R.spawnIn<=0){ spawn(); R.spawnIn = Math.max(3.2, 7 - Math.min(S.day,8)*0.45) + Math.random()*3; }
+    }
+    // patience
+    R.seats.forEach(g=>{
+      if(!g || g.state!=='wait') return;
+      g.pat -= dt;
+      const f = Math.max(g.pat/g.max,0);
+      g.bar.style.width = (f*100)+'%';
+      g.bar.className = f<0.25?'low':f<0.55?'mid':'';
+      if(g.pat<=0){
+        R.stats.lost++; S.rep = Math.max(0,S.rep-1); R.combo=0;
+        floatAt(g,`<img src="${IMG('heart')}" alt="">-1`,true);
+        g.bub.className='bub done'; g.bub.innerHTML='<span class="tag" style="font-size:2.4cqw;inset:auto 0 40% 0">走啦</span>';
+        setImg(R.boss,BOSS.mad,1500,BOSS.idle); setImg(R.lady,LADY.sad,1800,LADY.idle);
+        say('lady','sad',`${GUEST[g.sp].n}等不及先走了……下次要快一点。`);
+        removeGuest(g,600); save(); hud(); refreshMenu();
+      }
+    });
+    // cooking
+    const job = R.queue[0];
+    if(job){
+      job.t += dt;
+      R.boss.src.endsWith(BOSS.busy+'.webp') || (R.boss.src = IMG(BOSS.busy));
+      R.cookBub.hidden=false;
+      R.cookBub.querySelector('img').src = IMG(job.dish);
+      R.cookBub.style.setProperty('--p',(Math.min(job.t/job.need,1)*100)+'%');
+      if(job.t>=job.need){ R.queue.shift(); serve(job); if(!R.queue.length){ R.cookBub.hidden=true; R.boss.src=IMG(BOSS.idle);} }
+      drawQueue();
+    }
+    // cat cooldown
+    if(R.catCd>0){ R.catCd=Math.max(0,R.catCd-dt); }
+    const cd = R.cat.querySelector('.catcd');
+    cd.hidden = !(R.catCd>0);
+    cd.style.setProperty('--p',(R.catCd/25*100)+'%');
+    // end of day
+    if(R.t>=DAY_LEN && !R.queue.length && !R.seats.some(g=>g && g.state==='wait')){ closeDay(); }
+    else if(R.t>=DAY_LEN && !R.lastCall){ R.lastCall=true; say('boss','smile','到点了，做完手上这几份就打烊。'); }
+    hud();
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ---------------- day flow ---------------- */
+function openDay(){
+  R.open=true; R.t=0; R.spawnIn=1.2; R.queue=[]; R.combo=0; R.catCd=0; R.lastCall=false;
+  R.stats={earn:0,served:0,lost:0};
+  R.seats.forEach(g=>g&&g.el.remove()); R.seats=[];
+  buildScene(); buildMenu(); drawQueue(); hud();
+  $('modal').hidden=true;
+  say('boss','smile',S.day===1?'挂上营业牌啦。客人头上的气泡就是他们想吃的东西。':`第 ${S.day} 天，开门营业！`);
+  playBgm();
+}
+function closeDay(){
+  R.open=false;
+  R.seats.forEach(g=>{ if(g && g.state!=='gone') removeGuest(g,0); });
+  R.cookBub.hidden=true;
+  const st = R.stats;
+  S.day++; save(); refreshMenu();
+  const mood = st.lost===0 && st.served>0 ? ['lady','laugh','一个客人都没让他们空等，今晚辛苦啦！'] : st.lost>st.served ? ['boss','pout','好多客人没吃上……明天多摸摸猫，或者升级一下厨房。'] : ['lady','smile','打烊啦，数数今天的橘子币吧。'];
+  say(...mood);
+  showShop(st);
+}
+
+/* ---------------- shop ---------------- */
+const COOK_COST = [80,160,280];
+function shopItems(){
+  const items = [];
+  if(S.tables<3) items.push({k:'table',img:'round_table',n:'加一张桌子',d:'多一个座位，能同时招待三位客人。',cost:150});
+  if(S.cookLv<3) items.push({k:'cook',img:'fireplace',n:`厨房升级 Lv${S.cookLv+1}`,d:'做菜速度加快 20%。',cost:COOK_COST[S.cookLv]});
+  if(!S.dog) items.push({k:'dog',img:'dog_sweater_sit',n:'比熊店员小白',d:'在门口迎客，每单小费多 20%。',cost:200});
+  Object.entries(DISH).filter(([id,d])=>d.cost && !S.unlocked.includes(id)).forEach(([id,d])=>{
+    const fan = Object.values(GUEST).find(G=>G.fav===id);
+    items.push({k:'dish:'+id,img:id,n:`新菜：${d.n}`,d:`售价 ${d.price}，制作 ${d.cook} 秒。`+(fan?`${fan.n}的最爱，会多给小费。`:''),cost:d.cost});
+  });
+  return items;
+}
+function showShop(st){
+  const card = $('card');
+  const first = !st;
+  const items = shopItems();
+  card.innerHTML = `
+    ${first ? `<div class="duo"><img src="${IMG('chibi_boss_smile')}" alt="老板"><img src="${IMG('chibi_lady_wave')}" alt="老板娘"></div>
+      <h2>小狐狸酒馆</h2>
+      <p class="lead">雨夜里只有这家店还亮着灯。<br>客人坐下后，头顶的气泡会显示想吃的菜，在菜单里点它，老板就会开始做。<br>等太久客人会走掉；摸摸壁炉边的猫猫，大家能多等一会儿。</p>`
+    : `<h2>第 ${S.day-1} 天 · 打烊</h2>
+      <div class="sum">
+        <div><b>${st.earn}</b><span>今日收入</span></div>
+        <div><b>${st.served}</b><span>招待客人</span></div>
+        <div><b>${st.lost}</b><span>没等到的</span></div>
+        <div><b>${S.rep}</b><span>人气</span></div>
+      </div>`}
+    ${items.length ? `<div class="shop-h"><h3>添置小店</h3><span class="wallet"><img src="${IMG('orange_coin')}" alt="">${S.coins}</span></div>
+    <div class="shop">${items.map(it=>`
+      <div class="item"><img src="${IMG(it.img)}" alt=""><div><b>${it.n}</b><small>${it.d}</small></div>
+      <button class="btn" type="button" data-k="${it.k}" ${S.coins<it.cost?'disabled':''}><img src="${IMG('orange_coin')}" alt="">${it.cost}</button></div>`).join('')}</div>` : '<p class="lead">店里该有的都有啦，老板说要一直开下去。</p>'}
+    <div class="row">
+      <button class="btn big" type="button" id="goBtn">${first && S.day===1 ? '挂牌营业' : `开始第 ${S.day} 天`}</button>
+    </div>
+    <div class="row"><button class="btn ghost" type="button" id="resetBtn">重新开店</button></div>`;
+  card.querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.k,st)));
+  $('goBtn').addEventListener('click',openDay);
+  const rb = $('resetBtn');
+  rb.addEventListener('click',()=>{
+    if(rb.dataset.arm){ S = fresh(); save(); buildScene(); buildMenu(); hud(); showShop(null); say('lady','smile','一切从头开始，小店又是新的了。'); }
+    else { rb.dataset.arm='1'; rb.textContent='再点一次确认清空进度'; setTimeout(()=>{ if(rb.isConnected){ delete rb.dataset.arm; rb.textContent='重新开店'; } },3000); }
+  });
+  $('modal').hidden=false;
+  $('goBtn').focus({preventScroll:true});
+}
+function buy(k,st){
+  const it = shopItems().find(i=>i.k===k); if(!it || S.coins<it.cost) return;
+  S.coins -= it.cost;
+  if(k==='table'){ S.tables=3; say('boss','laugh','新桌子搬进来了，今晚能多坐一位。'); }
+  else if(k==='cook'){ S.cookLv++; say('boss','laugh','换了新锅，手速更快了！'); }
+  else if(k==='dog'){ S.dog=true; say('lady','laugh','小白来上班啦，记得给它留块饼干。'); }
+  else { const id=k.split(':')[1]; S.unlocked.push(id); say('boss','smile',`${DISH[id].n}加进菜单了。`); }
+  save(); buildScene(); buildMenu(); hud(); showShop(st);
+}
+
+/* ---------------- bgm ---------------- */
+const bgm = $('bgm'); bgm.volume = 0.45;
+function paintBgm(){ const b=$('bgmBtn'); b.className='rbtn '+(S.bgm?'on':'off'); b.setAttribute('aria-pressed',S.bgm); }
+function playBgm(){ if(S.bgm){ bgm.play().catch(()=>{}); } }
+$('bgmBtn').addEventListener('click',()=>{
+  S.bgm=!S.bgm; save(); paintBgm();
+  if(S.bgm) bgm.play().catch(()=>{}); else bgm.pause();
+});
+
+/* ---------------- boot ---------------- */
+function start(data){
+  if(data && data.S) S = data.S;
+  buildScene(); buildMenu(); drawQueue(); hud(); paintBgm();
+  showShop(null);
+  requestAnimationFrame(t=>{ last=t; requestAnimationFrame(tick); });
+}
+const hot = window.claude && window.claude.hot;
+if(hot && hot.snapshot) hot.snapshot(()=>({S}));
+if(hot && hot.ready) hot.ready(start); else start(hot && hot.data || {});
+})();
+</script>
+</body>
+</html>
