@@ -214,3 +214,7 @@
 
 `game/` 文件夹里是「小暖光酒馆」经营小游戏（橘子、宁宁、罐罐、果果、糖糖）：`index.html` 加上压缩过的素材（`img/`）和背景音乐（`audio/`），整个文件夹可以单独运行。
 在仓库 Settings → Pages 里开启 GitHub Pages（Branch 选 `main`，目录选 `/ (root)`）后，就能用 `https://ttsningning.github.io/orange-shop-assets/game/` 访问。
+
+## 酒馆美化 / 月光海·玻璃
+
+主题文件和全部素材在 `theme/moonsea/`，说明见该文件夹的 README。
