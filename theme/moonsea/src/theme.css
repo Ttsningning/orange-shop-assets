@@ -9,7 +9,7 @@
 :root {
     --输入框文字: "月光落在海面上……";
     --加载更多文字: "";
-    --气泡宽: min(96cqw, 600px);    /* 气泡宽度，手机端约等于全屏 */
+    --气泡宽: min(96vw, 600px);     /* 气泡宽度，手机端约等于全屏 */
     --楼层间距: 26px;               /* 两条消息之间的空隙 */
     --拼接缝: 3px;                   /* 头部/正文/尾部三张卡片之间的缝 */
     --正文字色: #2b3a6e;
@@ -23,6 +23,11 @@
     /* 以下由宽度自动换算，一般不用动 */
     --头高: calc(var(--气泡宽) * 0.2459);
     --尾高: calc(var(--气泡宽) * 0.1407);
+}
+
+/* 支持容器单位的浏览器按聊天区宽度算，电脑端宽屏也不会撑爆 */
+@supports (width: 1cqw) {
+    :root { --气泡宽: min(96cqw, 600px); }
 }
 
 body {
@@ -47,6 +52,7 @@ body {
     margin: calc(var(--头高) + var(--拼接缝) + var(--楼层间距)) auto calc(var(--尾高) + var(--拼接缝)) !important;
     padding: calc(var(--气泡宽) * 0.06) calc(var(--气泡宽) * 0.075) calc(var(--气泡宽) * 0.055) !important;
     min-height: calc(var(--气泡宽) * 0.2);
+    flex: 0 0 auto !important;      /* 聊天区是竖向 flex，消息多时不许被压扁 */
     position: relative;
     overflow: visible !important;
     background: none !important;
@@ -60,6 +66,26 @@ body {
     color: var(--正文字色);
 }
 #chat .mes:first-of-type { margin-top: calc(var(--头高) + var(--拼接缝) + 12px) !important; }
+
+/* 兼容修正：TauriTavern / 部分 iOS 客户端会给每条消息加尺寸约束（contain），
+   消息高度就不再跟着文字长，正文会溢出、几层叠在一起。这里统一解除 */
+#chat > .mes,
+#chat > .mes:not(.last_mes),
+#chat > .mes.last_mes {
+    content-visibility: visible !important;
+    contain-intrinsic-block-size: none !important;
+    contain-intrinsic-size: none !important;
+    contain: none !important;
+    height: auto !important;
+    max-height: none !important;
+}
+#chat .mes .mes_block,
+#chat .mes .mes_text {
+    height: auto !important;
+    max-height: none !important;
+    contain: none !important;
+}
+#chat .last_mes .mesAvatarWrapper { padding-bottom: 0 !important; }
 
 /* 头部卡片（头像圈 + 名字牌 + 夜海） */
 #chat .mes::before,
@@ -93,8 +119,14 @@ body {
     width: 100%;
     height: var(--头高);
     margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
+    /* 楼层号/计时/字数排成一行，数字再长也不会叠在一起 */
+    padding: calc(var(--头高) * 0.47) 0 0 47.5% !important;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: calc(var(--气泡宽) * 0.022);
     pointer-events: none;
     z-index: 2;
 }
@@ -124,8 +156,9 @@ body {
 #chat .mes .mesIDDisplay,
 #chat .mes .mes_timer,
 #chat .mes .tokenCounterDisplay {
-    position: absolute !important;
-    top: 49%;
+    position: static !important;
+    flex: none;
+    width: auto !important;
     margin: 0 !important;
     padding: 0 !important;
     font-size: calc(var(--气泡宽) * 0.027) !important;
@@ -135,9 +168,6 @@ body {
     white-space: nowrap;
     text-shadow: 0 0 4px rgba(70, 100, 200, .9);
 }
-#chat .mes .mesIDDisplay { left: 47.5%; }
-#chat .mes .mes_timer { left: 55%; }
-#chat .mes .tokenCounterDisplay { left: 64.5%; }
 
 /* ---------- 名字：放进名字牌 ---------- */
 #chat .mes .mes_block {
